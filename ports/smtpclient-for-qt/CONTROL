@@ -1,0 +1,5 @@
+Source: smtpclient-for-qt
+Version: v1.1
+Homepage: https://github.com/bluetiger9/SmtpClient-for-Qt
+Description: An SMTP Client written in C++ for Qt. Allows applications to send emails (MIME with text, html, attachments, inline files, etc.) via SMTP. Supports SSL and SMTP authentication.
+Build-Depends: qt5
