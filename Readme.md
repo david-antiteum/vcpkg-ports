@@ -1,6 +1,6 @@
 # Overlay Ports
 
-Install then with:
+Install them with:
 
 ```bash
 vcpkg install consulcpp --overlay-ports=vcpkg-ports/ports
