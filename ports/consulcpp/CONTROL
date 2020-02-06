@@ -2,5 +2,4 @@ Source: consulcpp
 Version: v0.1.0-3
 Homepage: https://github.com/david-antiteum/consulcpp
 Description: A C++ library that implements the Consul API.
-Build-Depends: uriparser, nlohmann-json, boost, fmt, spdlog, grpc
-
+Build-Depends: uriparser, nlohmann-json, boost, fmt, spdlog, grpc, ms-gsl
