@@ -1,0 +1,5 @@
+Source: drea
+Version: 0.0.1
+Homepage: https://github.com/david-antiteum/drea
+Description: A C++ framework for CLI apps and services
+Build-Depends: uriparser, nlohmann-json, boost, fmt, spdlog, yaml-cpp, grpc, ms-gsl, consulcpp
