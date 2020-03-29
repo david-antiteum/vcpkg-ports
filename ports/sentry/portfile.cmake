@@ -20,12 +20,15 @@ message(STATUS "Cloning done in ${SOURCE_PATH}" )
 if( WIN32 )
 	set( SENTRY_TRANSPORT "winhttp" )
 	set( SENTRY_BACKEND "crashpad" )
+	set( TOOL_NAME "crashpad_handler.exe" )
 elseif( APPLE )
 	set( SENTRY_TRANSPORT "curl" )
 	set( SENTRY_BACKEND "crashpad" )
+	set( TOOL_NAME "crashpad_handler" )
 else()
 	set( SENTRY_TRANSPORT "curl" )
 	set( SENTRY_BACKEND "breakpad" )
+	set( TOOL_NAME "" )
 endif()
 
 vcpkg_configure_cmake(
@@ -49,13 +52,9 @@ file(INSTALL ${SOURCE_PATH}/LICENSE DESTINATION ${CURRENT_PACKAGES_DIR}/share/${
 file( REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/include ${CURRENT_PACKAGES_DIR}/debug/share )
 
 # Tools
-if( WIN32 )
+if( NOT TOOL_NAME STREQUAL "" )
 	file( MAKE_DIRECTORY ${CURRENT_PACKAGES_DIR}/tools/${PORT}/ )
-	file( RENAME ${CURRENT_PACKAGES_DIR}/bin/crashpad_handler.exe ${CURRENT_PACKAGES_DIR}/tools/${PORT}/crashpad_handler.exe )
+	file( RENAME ${CURRENT_PACKAGES_DIR}/bin/${TOOL_NAME} ${CURRENT_PACKAGES_DIR}/tools/${PORT}/${TOOL_NAME} )
 	vcpkg_copy_tool_dependencies( ${CURRENT_PACKAGES_DIR}/tools/${PORT} )
-	file( REMOVE ${CURRENT_PACKAGES_DIR}/debug/bin/crashpad_handler.exe )
-elseif( APPLE )
-
-else()
-
+	file( REMOVE ${CURRENT_PACKAGES_DIR}/debug/bin/${TOOL_NAME} )
 endif()
