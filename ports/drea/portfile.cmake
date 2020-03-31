@@ -3,8 +3,8 @@ include(vcpkg_common_functions)
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO david-antiteum/drea
-    REF v0.0.3-1
-    SHA512 39c4bd98344f156bcdc545bdf0a836a86fe3aeaa92319dc5403f5a8384790b05d0a7cd9786631c3fe4c3f8990ae89c646acf41cad2e0d7a75c9a7cf6d8c330dd
+    REF v0.0.4
+    SHA512 736155bb0d6f7b824a6fb3a37e596dfb052ac91597ecfe01ba6aac09211c01b9a364235d0b83c6b3331dd608208a05513ae14e6664477149e46f277338d39129
     HEAD_REF master
 )
 
