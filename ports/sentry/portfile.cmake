@@ -3,7 +3,7 @@ include(vcpkg_common_functions)
 find_program(GIT git)
 
 set( GIT_URL "https://github.com/getsentry/sentry-native.git" )
-set( GIT_REF "0.3.1" )
+set( GIT_REF "0.3.2" )
 
 set( SOURCE_PATH ${CURRENT_BUILDTREES_DIR}/src/${GIT_REF} )
 
@@ -58,4 +58,6 @@ if( NOT TOOL_NAME STREQUAL "" )
 	vcpkg_copy_tool_dependencies( ${CURRENT_PACKAGES_DIR}/tools/${PORT} )
 	file( REMOVE ${CURRENT_PACKAGES_DIR}/debug/bin/${TOOL_NAME} )
 endif()
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/bin" "${CURRENT_PACKAGES_DIR}/debug/bin")
+if( NOT WIN32 )
+	file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/bin" "${CURRENT_PACKAGES_DIR}/debug/bin")
+endif()
