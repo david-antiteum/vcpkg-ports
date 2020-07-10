@@ -7,8 +7,8 @@ endif()
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO jaegertracing/jaeger-client-cpp
-    REF v0.5.0
-    SHA512 d855ecfbb1dadffc8c21ff390717a732e743a1e751759bb85e800a0057d5ec5885080ca5ab9d89761b05d68d71817bb5780f42411a92cb5152a2a0f84b0b035a
+    REF v0.6.0
+    SHA512 0
     HEAD_REF master
 )
 
