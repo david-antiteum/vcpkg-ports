@@ -3,7 +3,7 @@ include(vcpkg_common_functions)
 find_program(GIT git)
 
 set( GIT_URL "https://github.com/getsentry/sentry-native.git" )
-set( GIT_REF "0.3.3" )
+set( GIT_REF "0.4.1" )
 
 set( SOURCE_PATH ${CURRENT_BUILDTREES_DIR}/src/${GIT_REF} )
 
