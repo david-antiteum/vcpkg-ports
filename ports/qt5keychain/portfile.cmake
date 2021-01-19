@@ -1,5 +1,3 @@
-include(vcpkg_common_functions)
-
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO frankosterfeld/qtkeychain
@@ -8,7 +6,6 @@ vcpkg_from_github(
     HEAD_REF master
 )
 
-list(APPEND QTKEYCHAIN_OPTIONS -DCMAKE_DEBUG_POSTFIX=d)
 list(APPEND QTKEYCHAIN_OPTIONS -DBUILD_TEST_APPLICATION:BOOL=OFF)
 if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
     list(APPEND QTKEYCHAIN_OPTIONS -DQTKEYCHAIN_STATIC:BOOL=ON)
@@ -28,16 +25,12 @@ vcpkg_configure_cmake(
 )
 
 vcpkg_install_cmake()
+vcpkg_fixup_cmake_targets( CONFIG_PATH lib/cmake/qt5keychain )
 
 vcpkg_copy_pdbs()
 
-# Remove unneeded dirs
-file(REMOVE_RECURSE 
-	${CURRENT_PACKAGES_DIR}/debug/include
-	${CURRENT_PACKAGES_DIR}/debug/lib/cmake
-	${CURRENT_PACKAGES_DIR}/lib/cmake
-)
+file(INSTALL ${SOURCE_PATH}/COPYING DESTINATION ${CURRENT_PACKAGES_DIR}/share/qt5keychain RENAME copyright)
 
-# Handle copyright
-file(COPY ${SOURCE_PATH}/COPYING DESTINATION ${CURRENT_PACKAGES_DIR}/share/qtkeychain)
-file(RENAME ${CURRENT_PACKAGES_DIR}/share/qtkeychain/COPYING ${CURRENT_PACKAGES_DIR}/share/qtkeychain/copyright)
+# Remove duplicate info
+file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/include)
+file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/share)

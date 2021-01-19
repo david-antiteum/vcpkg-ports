@@ -1,0 +1,16 @@
+{
+	"name": "consulcpp",
+	"version-string": "v0.1.0-3",
+	"port-version": 1,
+	"homepage": "https://github.com/david-antiteum/consulcpp",
+	"description": "A C++ library that implements the Consul API.",
+	"dependencies": [
+		"uriparser",
+		"nlohmann-json",
+		"boost",
+		"fmt",
+		"spdlog",
+		"grpc",
+		"ms-gsl"
+	]
+}

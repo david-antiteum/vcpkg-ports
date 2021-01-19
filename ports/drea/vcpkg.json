@@ -1,0 +1,19 @@
+{
+	"name": "drea",
+	"version-string": "0.0.9",
+	"port-version": 1,
+	"homepage": "https://github.com/david-antiteum/drea",
+	"description": "A C++ framework for CLI apps and services.",
+	"dependencies": [
+		"uriparser",
+		"nlohmann-json",
+		"boost",
+		"fmt",
+		"spdlog",
+		"yaml-cpp",
+		"cpptoml",
+		"grpc",
+		"ms-gsl",
+		"consulcpp"
+	]
+}

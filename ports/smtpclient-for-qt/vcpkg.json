@@ -1,0 +1,10 @@
+{
+	"name": "smtpclient-for-qt",
+	"version-string": "v1.1",
+	"port-version": 1,
+	"homepage": "https://github.com/bluetiger9/SmtpClient-for-Qt",
+	"description": "An SMTP Client written in C++ for Qt. Allows applications to send emails (MIME with text, html, attachments, inline files, etc.) via SMTP. Supports SSL and SMTP authentication.",
+	"dependencies": [
+		"qt5-base"
+	]
+}
