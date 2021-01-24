@@ -1,8 +1,8 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO david-antiteum/consulcpp
-    REF v0.1.0-3
-    SHA512 87eaf0298e38620ec36f656e54448f0f340ff8749ae21653e053d9b28db96159d6b5cfbf6564f5763deed948d90d378593fa380a3bc6a839fb7c8ccf550e474a
+    REF v0.2.0
+    SHA512 641322b9e0c3905ed2dbbf2b815b33492def45fca5de51144cdd77c8ac10ad4694a7bbb1a03af3f99f35efb93bb2ac80095fd9177805ae04d2064e21416ddde7
     HEAD_REF master
 )
 
