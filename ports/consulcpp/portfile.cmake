@@ -1,8 +1,8 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO david-antiteum/consulcpp
-    REF v0.2.0
-    SHA512 641322b9e0c3905ed2dbbf2b815b33492def45fca5de51144cdd77c8ac10ad4694a7bbb1a03af3f99f35efb93bb2ac80095fd9177805ae04d2064e21416ddde7
+    REF v0.2.1
+    SHA512 30c17395e8bfda679fd30d4ae3d939c5ca018aea7a125afb99c685b5c787cf1395a6a28d0e299737f5be1a72575071aa6646f4590dc62c23d9c2a9375d226d5f
     HEAD_REF master
 )
 
@@ -11,6 +11,7 @@ vcpkg_configure_cmake(
     PREFER_NINJA
     OPTIONS
         -DBUILD_EXAMPLES=OFF
+        -DBUILD_TESTING=OFF
 )
 
 vcpkg_install_cmake()
