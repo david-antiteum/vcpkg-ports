@@ -1,8 +1,8 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO david-antiteum/drea
-    REF v0.10.1
-    SHA512 dea44826bf60fb8b52b74be3a47c6fb49d4995d8047908bff5893896bde2532c9bd4b2fe739c008ff8757d6d98160effc7d685daba864bd0beebb162fa63fe29
+    REF v0.10.2
+    SHA512 2827a884b8e5b514be48adbbe53338fdae31063aa3c1a29449d7e746fa85f9e8fdde647091d4a0da80903ad6327ff08f13d1c15753f4120ae620def7ae95234f
     HEAD_REF master
 )
 
