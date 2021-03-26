@@ -1,8 +1,8 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO david-antiteum/mailio
-    REF version_0-19-0
-    SHA512 9e488c5d8a08acd0efe1b1e2663d61e9cfb5fae53c12a0f961bc4a849c3ea2771536aed51975117b4d82d964c5ccb81659368ce07147cca3ec1d5a18e6c8a6b0
+    REF master
+    SHA512 21ca1415fa0e8bad515330bfcbbc72c56515a42c0c3c1d53774b1206652a953be54e208ce882dd9e74b3fee16c5fe62a0125f70cc05e12f4a7feda83c496db2d
     HEAD_REF master
 )
 
