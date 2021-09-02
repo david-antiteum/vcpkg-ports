@@ -1,7 +1,7 @@
 find_program(GIT git)
 
 set( GIT_URL "https://github.com/getsentry/sentry-native.git" )
-set( GIT_REF "0.4.9" )
+set( GIT_REF "0.4.12" )
 
 set( SOURCE_PATH ${CURRENT_BUILDTREES_DIR}/src/${GIT_REF} )
 

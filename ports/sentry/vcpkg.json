@@ -1,6 +1,6 @@
 {
 	"name": "sentry",
-	"version-string": "0.4.9",
+	"version-string": "0.4.12",
 	"port-version": 1,
 	"homepage": "https://github.com/getsentry/sentry-native",
 	"description": "Sentry SDK for C, C++ and native applications.",
