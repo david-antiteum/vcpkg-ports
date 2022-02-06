@@ -1,6 +1,6 @@
 {
 	"name": "drea",
-	"version-string": "0.10.5",
+	"version-string": "0.10.6",
 	"port-version": 1,
 	"homepage": "https://github.com/david-antiteum/drea",
 	"description": "A C++ framework for CLI apps and services.",
