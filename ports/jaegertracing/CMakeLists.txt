@@ -1,15 +1,12 @@
-cmake_minimum_required( VERSION 3.12 )
-if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+cmake_minimum_required(VERSION 3.3)
+#if(DEFINED ENV{VCPKG_ROOT})
+  message( "Using vcpkg settings: $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" )
   set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-endif()
-
-if(DEFINED ENV{VCPKG_ROOT})
   set( USE_VCPKG ON )
-  message( "USING VCPKG" )
-else()
-  set( USE_HUNTER ON )
-  message( "USING HUNTER" )
-endif()
+#else()
+#  set( USE_HUNTER ON )
+#  message( "USING HUNTER ${CMAKE_TOOLCHAIN_FILE}" )
+#endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -24,13 +21,17 @@ include(CMakeDependentOption)
 
 if( USE_HUNTER )
   include(HunterGate)
+
+  option(HUNTER_BUILD_SHARED_LIBS "Build Shared Library" ON)
+
   HunterGate(
-      URL "https://github.com/ruslo/hunter/archive/v0.23.5.tar.gz"
-      SHA1 "2c5c6fc1cf609d0856695d60f147594daf4e6b3e"
+      URL "https://github.com/cpp-pm/hunter/archive/v0.23.249.tar.gz"
+      SHA1 "d45d77d8bba9da13e9290a180e0477e90accd89b"
+      LOCAL # load `${CMAKE_CURRENT_LIST_DIR}/cmake/Hunter/config.cmake`
   )
 endif()
 
-project(jaegertracing VERSION 0.5.0)
+project(jaegertracing VERSION 0.7.0)
 
 option(JAEGERTRACING_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
@@ -44,6 +45,14 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   list(APPEND cxx_flags -Wno-unused-private-field)
+endif()
+
+if(MSVC)
+  add_definitions(-D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
+
+  # https://studiofreya.com/2018/01/06/visual-studio-2017-with-cpp17-and-boost/
+  add_definitions(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
+  add_definitions(-D_SCL_SECURE_NO_WARNINGS)
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -86,7 +95,7 @@ if( USE_HUNTER )
   list(APPEND package_deps OpenTracing)
 else()
     find_package(OpenTracing CONFIG REQUIRED)
-    link_libraries( OpenTracing::opentracing-static )
+    link_libraries( OpenTracing::opentracing )
 endif()
 
 if( USE_HUNTER )
@@ -156,8 +165,8 @@ set(SRC
     src/jaegertracing/TraceID.cpp
     src/jaegertracing/Tracer.cpp
     src/jaegertracing/TracerFactory.cpp
-    src/jaegertracing/Transport.cpp
-    src/jaegertracing/UDPTransport.cpp
+    src/jaegertracing/Sender.cpp
+    src/jaegertracing/ThriftSender.cpp
     src/jaegertracing/baggage/BaggageSetter.cpp
     src/jaegertracing/baggage/RemoteRestrictionJSON.cpp
     src/jaegertracing/baggage/RemoteRestrictionManager.cpp
@@ -192,6 +201,8 @@ set(SRC
     src/jaegertracing/propagation/HeadersConfig.cpp
     src/jaegertracing/propagation/Injector.cpp
     src/jaegertracing/propagation/Propagator.cpp
+    src/jaegertracing/propagation/JaegerPropagator.cpp
+    src/jaegertracing/propagation/W3CPropagator.cpp
     src/jaegertracing/reporters/CompositeReporter.cpp
     src/jaegertracing/reporters/Config.cpp
     src/jaegertracing/reporters/InMemoryReporter.cpp
@@ -232,9 +243,12 @@ set(SRC
     src/jaegertracing/thrift-gen/zipkincore_types.cpp
     src/jaegertracing/utils/ErrorUtil.cpp
     src/jaegertracing/utils/HexParsing.cpp
+    src/jaegertracing/utils/EnvVariable.cpp
     src/jaegertracing/utils/RateLimiter.cpp
-    src/jaegertracing/utils/UDPClient.cpp
-    src/jaegertracing/utils/YAML.cpp)
+    src/jaegertracing/utils/UDPTransporter.cpp
+    src/jaegertracing/utils/HTTPTransporter.cpp
+    src/jaegertracing/utils/YAML.cpp
+    src/jaegertracing/ThriftMethods.cpp)
 
 if(JAEGERTRACING_BUILD_CROSSDOCK)
   list(APPEND SRC
@@ -251,12 +265,31 @@ function(add_lib_deps lib)
   target_compile_options(${lib} PUBLIC ${cxx_flags})
 endfunction()
 
+function(update_path_for_test atest)
+  if(WIN32)
+    # If dependent library is a DLL we have to add location of DLL to PATH
+    set(new_path "")
+
+    foreach(LIB OpenTracing::opentracing yaml-cpp::yaml-cpp GTest::main)
+      list(APPEND new_path $<TARGET_FILE_DIR:${LIB}>)
+    endforeach()
+    list(APPEND new_path $ENV{PATH})
+    string(REPLACE ";" "\\;" new_path "${new_path}")
+
+    set_tests_properties(${atest} PROPERTIES ENVIRONMENT "PATH=${new_path}")
+  endif()
+endfunction()
+
 option(JAEGERTRACING_PLUGIN "Build dynamic plugin" OFF)
 cmake_dependent_option(BUILD_SHARED_LIBS "Build shared libraries" ON
   "NOT JAEGERTRACING_PLUGIN" OFF)
 
 if(BUILD_SHARED_LIBS)
   add_library(jaegertracing SHARED ${SRC})
+  if (WIN32)
+    target_compile_definitions(jaegertracing PUBLIC YAML_CPP_DLL)
+    target_link_libraries(jaegertracing PUBLIC Iphlpapi Ws2_32)
+  endif()
   add_lib_deps(jaegertracing)
   set_target_properties(jaegertracing PROPERTIES
     VERSION ${PROJECT_VERSION}
@@ -264,6 +297,7 @@ if(BUILD_SHARED_LIBS)
   set(JAEGERTRACING_LIB jaegertracing)
   list(APPEND JAEGERTRACING_LIBS jaegertracing)
 endif()
+
 
 if(JAEGERTRACING_PLUGIN)
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/export.map
@@ -277,9 +311,16 @@ if(JAEGERTRACING_PLUGIN)
 endif()
 
 add_library(jaegertracing-static STATIC ${SRC})
-set_target_properties(jaegertracing-static PROPERTIES
-  OUTPUT_NAME jaegertracing)
+if (NOT WIN32)
+  #on windows, the shared library generate also a .lib file
+  set_target_properties(jaegertracing-static PROPERTIES OUTPUT_NAME jaegertracing)
+endif()
+
 add_lib_deps(jaegertracing-static)
+if (WIN32)
+  target_link_libraries(jaegertracing-static PUBLIC Iphlpapi Ws2_32)
+endif()
+
 if(NOT JAEGERTRACING_LIB)
   set(JAEGERTRACING_LIB jaegertracing-static)
 endif()
@@ -312,7 +353,7 @@ if(BUILD_TESTING)
       src/jaegertracing/TraceIDTest.cpp
       src/jaegertracing/TracerFactoryTest.cpp
       src/jaegertracing/TracerTest.cpp
-      src/jaegertracing/UDPTransportTest.cpp
+      src/jaegertracing/ThriftSenderTest.cpp
       src/jaegertracing/baggage/BaggageTest.cpp
       src/jaegertracing/metrics/MetricsTest.cpp
       src/jaegertracing/metrics/NullStatsFactoryTest.cpp
@@ -323,27 +364,34 @@ if(BUILD_TESTING)
       src/jaegertracing/net/http/MethodTest.cpp
       src/jaegertracing/net/http/ResponseTest.cpp
       src/jaegertracing/propagation/PropagatorTest.cpp
+      src/jaegertracing/propagation/W3CPropagatorTest.cpp
+      src/jaegertracing/reporters/ConfigTest.cpp
       src/jaegertracing/reporters/ReporterTest.cpp
       src/jaegertracing/samplers/SamplerTest.cpp
       src/jaegertracing/testutils/MockAgentTest.cpp
       src/jaegertracing/testutils/TUDPTransportTest.cpp
       src/jaegertracing/utils/ErrorUtilTest.cpp
       src/jaegertracing/utils/RateLimiterTest.cpp
-      src/jaegertracing/utils/UDPClientTest.cpp)
+      src/jaegertracing/utils/UDPSenderTest.cpp
+      src/jaegertracing/utils/HTTPTransporterTest.cpp)
   target_link_libraries(
-      UnitTest PRIVATE testutils ${GTEST_MAIN})
+      UnitTest PRIVATE testutils PUBLIC GTest::main ${JAEGERTRACING_LIB})
   add_test(NAME UnitTest COMMAND UnitTest)
+
+  update_path_for_test(UnitTest)
 
   if(TARGET jaegertracing)
     add_executable(DynamicallyLoadTracerTest
       src/jaegertracing/DynamicallyLoadTracerTest.cpp)
+
     target_include_directories(DynamicallyLoadTracerTest PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
       $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>)
     target_link_libraries(
-      DynamicallyLoadTracerTest OpenTracing::opentracing-static ${GTEST_MAIN})
+      DynamicallyLoadTracerTest ${OPENTRACING_LIB} GTest::main)
     add_test(NAME DynamicallyLoadTracerTest
              COMMAND DynamicallyLoadTracerTest $<TARGET_FILE:jaegertracing>)
+    update_path_for_test(DynamicallyLoadTracerTest)
     if(JAEGERTRACING_COVERAGE)
         setup_target_for_coverage(NAME UnitTestCoverage
                                   EXECUTABLE UnitTest
@@ -351,6 +399,8 @@ if(BUILD_TESTING)
     endif()
   endif()
 endif()
+
+
 
 if(JAEGERTRACING_BUILD_CROSSDOCK)
   set(CROSSDOCK_SRC crossdock/Server.cpp)
